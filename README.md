@@ -1,7 +1,7 @@
 # Server.js Documentation
 
 ## Overview
-The `server.js` file is the main entry point for the application. It sets up the Express server, configures middleware, and defines the main route handlers.
+The `server.js` file is the main entry point for the server-side application. It sets up the Express server, configures middleware, connects to the database, and defines the main route handlers.
 
 ## Key Components
 
@@ -15,17 +15,18 @@ The `server.js` file is the main entry point for the application. It sets up the
   ```javascript
   app.use(express.json());
   app.use(cookieParser());
-  app.use(cors({ credentials: true }));
+  app.use(cors({ credentials: true, origin: allowedOrigins }));
   ```
 
-- **Database Connection**: The server connects to the database using `connectDB` function.
+- **Database Connection**: The server connects to the database using the `connectDB` function.
   ```javascript
   connectDB();
   ```
 
-- **Routes**: The server defines routes for authentication.
+- **Routes**: The server defines routes for authentication and user management.
   ```javascript
   app.use("/api/auth", authRouter);
+  app.use("/api/user", userRouter);
   ```
 
 - **Server Listening**: The server listens on a specified port and logs a message when it is running.
@@ -42,6 +43,7 @@ The `server.js` file is the main entry point for the application. It sets up the
 
 ## Environment Variables
 - **PORT**: The server port is configurable via environment variables, defaulting to 4000 if not specified.
+- **Allowed Origins**: The server allows CORS requests from specified origins, such as `http://localhost:5173`.
 
 ## Dependencies
 - **express**: Web framework for Node.js
