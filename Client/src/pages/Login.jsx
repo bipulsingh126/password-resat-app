@@ -8,7 +8,7 @@ import { toast } from 'react-toastify'
 
 // Login component definition
 const Login = () => {
-  const { backendUrl, setIsLoggedin, setUserData } = useContext(AppContext)
+  const { backendUrl, setIsLoggedin, getUserData } = useContext(AppContext)
   const navigate = useNavigate()
   const [state, setState] = useState('sign Up')
   const [name, setName] = useState('')
@@ -29,6 +29,7 @@ const Login = () => {
         })
         if (data.success) {
           setIsLoggedin(true)
+          getUserData()
           navigate('/')
           toast.success(data.message)
         } else {
@@ -41,6 +42,7 @@ const Login = () => {
         })
         if (data.success) {
           setIsLoggedin(true)
+          getUserData()
           navigate('/')
           toast.success(data.message)
         } else {

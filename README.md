@@ -61,7 +61,10 @@ The `authRoute.js` file sets up the authentication routes for the application us
 - **Login**: `POST /login` - Handles user login.
 - **Logout**: `POST /logout` - Handles user logout.
 - **Send Verify OTP**: `POST /send-verify-otp` - Sends a verification OTP to the user.
-- **Verify Email**: `POST /verify-email` - Verifies the user's email.
+- **Verify Email**: `POST /verify-email` - Verifies the user's email using the OTP.
+- **Check Authentication**: `GET /is-auth` - Checks if the user is authenticated.
+- **Send Reset OTP**: `POST /send-reset-otp` - Sends an OTP for password reset.
+- **Reset Password**: `POST /reset-password` - Resets the user's password using the OTP.
 
 ### User Authentication Middleware
 The `userAuth.js` file contains middleware for authenticating users using JWT tokens.
