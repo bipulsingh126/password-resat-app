@@ -1,28 +1,32 @@
 import React, { useContext, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Navbar = () => {
-  const { userData, setUserData } = useContext(AppContext)
+  const {
+    userData,
+    setUserData,
+    backendUrl,
+    setIsLoggedin,
+    getUserData,
+  } = useContext(AppContext)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const navigate = useNavigate()
 
-  const handleLogout = async () => {
+  const logout = async () => {
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/auth/logout`,
-        {
-          method: 'POST',
-          credentials: 'include',
-        },
-      )
-      const data = await res.json()
-      if (data.success) {
-        setUserData(null)
-        navigate('/login')
-      }
+      axios.defaults.withCredentials = true
+
+      const { data } = await axios.post(backendUrl + '/api/auth/logout')
+      data.success && setIsLoggedin(false)
+      data.success && setUserData(false)
+      toast.success(data.message)
+      navigate('/')
     } catch (error) {
       console.log(error)
+      toast.error('An error occurred. Please try again.')
     }
   }
 
@@ -52,18 +56,21 @@ const Navbar = () => {
                       </span>
                     </button>
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 invisible group-hover:visible transition-all duration-200 opacity-0 group-hover:opacity-100">
-                      <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600">
-                        Verfiy email
-                      </button>
+                      {!userData.isAccountVerified && (
+                        <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                          Verfiy email
+                        </button>
+                      )}
+
                       <button
-                        onClick={handleLogout}
+                        onClick={logout}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600"
                       >
                         Logout
                       </button>
                     </div>
                   </div>
-                </div>  
+                </div>
               </>
             ) : (
               <>
@@ -83,7 +90,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -128,8 +134,16 @@ const Navbar = () => {
                     {userData.name}
                   </span>
                 </div>
+                <div>
+                  {!userData.isAccountVerified && (
+                    <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                      Verify email
+                    </button>
+                  )}
+                </div>
+
                 <button
-                  onClick={handleLogout}
+                  onClick={logout}
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600"
                 >
                   Logout
