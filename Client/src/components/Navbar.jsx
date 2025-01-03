@@ -30,6 +30,22 @@ const Navbar = () => {
     }
   }
 
+  const sendverificationOtp = async () => {
+    try {
+      axios.defaults.withCredentials = true
+      const { data } = await axios.post(backendUrl + '/api/auth/send-reset-otp')
+      if (data.success) {
+        navigate('/email-verifiy')
+        toast.success(data.message)
+      } else {
+        toast.error(data.message)
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error('An error occurred. Please try again.')
+    }
+  }
+
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md shadow-md z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,7 +73,7 @@ const Navbar = () => {
                     </button>
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 invisible group-hover:visible transition-all duration-200 opacity-0 group-hover:opacity-100">
                       {!userData.isAccountVerified && (
-                        <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                        <button onClick={sendverificationOtp} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600">
                           Verfiy email
                         </button>
                       )}
@@ -136,7 +152,7 @@ const Navbar = () => {
                 </div>
                 <div>
                   {!userData.isAccountVerified && (
-                    <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600">
+                    <button onClick={sendverificationOtp} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600">
                       Verify email
                     </button>
                   )}

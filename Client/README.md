@@ -43,6 +43,8 @@ The `Client` folder contains the front-end part of the application. It includes 
   - Displays user initials and name if logged in.
   - Provides options to verify email and logout.
   - Includes a mobile menu toggle for smaller screens.
+  - Uses `react-toastify` for notifications.
+  - Utilizes `useContext` to access global state from `AppContext`.
 
 #### Login.jsx
 - **Description**: The `Login` component handles user authentication, allowing users to sign up or log in.
@@ -51,7 +53,23 @@ The `Client` folder contains the front-end part of the application. It includes 
   - Manages authentication state using context.
   - Displays notifications for success or error using `react-toastify`.
 
+#### VerifyEmail.jsx
+- **Description**: The `VerifyEmail` component allows users to input a verification code sent to their email.
+- **Features**: 
+  - Provides a form with inputs for entering a verification code.
+  - Automatically focuses on the next input field upon entry.
+  - Handles paste events to fill in the code quickly.
+  - Includes a button to resend the verification code.
+  - Uses `react-router-dom` for navigation.
+
 ### Core Files
+
+- **`AppContext.jsx`**: Provides a context for managing global state across the application.
+  - **Features**:
+    - Manages user authentication state and user data.
+    - Provides functions to fetch user data and authentication status.
+    - Uses `axios` for API requests with credentials.
+    - Displays notifications for success or error using `react-toastify`.
 
 - **`App.jsx`**: The root component of the application responsible for setting up routes and rendering the main layout. It includes the `ToastContainer` for displaying notifications and defines routes for `Home`, `Login`, `ResetPassword`, and `VerifyEmail`.
 
