@@ -30,37 +30,27 @@ The `Client` folder contains the front-end part of the application. It includes 
 
 - **`src/components` Directory**: Houses reusable React components that are shared across different pages, promoting modularity and code reuse.
 
-#### Header.jsx
-- **Description**: The `Header` component displays a welcome message and user profile information. It includes a profile image, a greeting message, and a "Get Started" button.
+#### ResetPassword.jsx
+- **Description**: The `ResetPassword` component handles the password reset process, guiding users through steps to reset their password via email verification.
 - **Features**: 
-  - Displays user name if logged in, otherwise shows "Developer".
-  - Shows a verification badge if the user's account is verified.
-  - Uses Tailwind CSS for styling.
+  - Multi-step form for email input, OTP verification, and new password entry.
+  - Timer for OTP expiration.
+  - Uses `axios` for API requests and `react-toastify` for notifications.
+  - Navigation to login page upon successful password reset.
 
-#### Navbar.jsx
-- **Description**: The `Navbar` component provides navigation links and user account options. It adapts to both desktop and mobile views.
+#### VerfiyEmail.jsx
+- **Description**: The `VerfiyEmail` component allows users to verify their email address by entering a code sent to their email.
 - **Features**: 
-  - Displays user initials and name if logged in.
-  - Provides options to verify email and logout.
-  - Includes a mobile menu toggle for smaller screens.
-  - Uses `react-toastify` for notifications.
-  - Utilizes `useContext` to access global state from `AppContext`.
+  - Input fields for entering a 6-digit verification code.
+  - Timer for code expiration and option to resend the code.
+  - Uses `axios` for API requests and `react-toastify` for notifications.
+  - Redirects to home page upon successful verification.
 
-#### Login.jsx
-- **Description**: The `Login` component handles user authentication, allowing users to sign up or log in.
+#### EmailVerify.jsx
+- **Description**: The `EmailVerify` component provides a simple message prompting users to check their email for verification.
 - **Features**: 
-  - Provides a form for user registration and login.
-  - Manages authentication state using context.
-  - Displays notifications for success or error using `react-toastify`.
-
-#### VerifyEmail.jsx
-- **Description**: The `VerifyEmail` component allows users to input a verification code sent to their email.
-- **Features**: 
-  - Provides a form with inputs for entering a verification code.
-  - Automatically focuses on the next input field upon entry.
-  - Handles paste events to fill in the code quickly.
-  - Includes a button to resend the verification code.
-  - Uses `react-router-dom` for navigation.
+  - Displays a static message indicating that an email verification is required.
+  - Can be used as a placeholder or informational component.
 
 ### Core Files
 

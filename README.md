@@ -65,13 +65,7 @@ The `authRoute.js` file sets up the authentication routes for the application us
 - **Check Authentication**: `GET /is-auth` - Checks if the user is authenticated.
 - **Send Reset OTP**: `POST /send-reset-otp` - Sends an OTP for password reset.
 - **Reset Password**: `POST /reset-password` - Resets the user's password using the OTP.
-
-### User Authentication Middleware
-The `userAuth.js` file contains middleware for authenticating users using JWT tokens.
-
-#### Key Functionality
-- Checks for the presence of a JWT token in cookies.
-- Verifies the token and attaches the user ID to the request body.
+- **Verify Reset OTP**: `POST /verify-reset-otp` - Verifies the OTP for password reset.
 
 ### Auth Controller
 The `authController.js` file contains functions for handling authentication logic.
@@ -82,6 +76,17 @@ The `authController.js` file contains functions for handling authentication logi
 - **logout**: Logs out a user by clearing the token.
 - **sendVerifyOtp**: Sends an OTP for email verification.
 - **verifyEmail**: Verifies the user's email using the OTP.
+- **isAuthenticated**: Checks if the user is authenticated.
+- **sendResetOtp**: Sends an OTP for password reset.
+- **resetPassword**: Resets the user's password using the OTP.
+- **verifyResetOtp**: Verifies the OTP for password reset.
+
+### User Authentication Middleware
+The `userAuth.js` file contains middleware for authenticating users using JWT tokens.
+
+#### Key Functionality
+- Checks for the presence of a JWT token in cookies.
+- Verifies the token and attaches the user ID to the request body.
 
 ### User Model
 The `userModel.js` file defines the schema for user data using Mongoose.

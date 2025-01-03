@@ -244,26 +244,33 @@ export const sendResetOtp = async (req, res) => {
 
     await user.save();
 
-    const mailOptions = {
-      from: process.env.SENDER_EMAIL,
-      to: user.email,
-      subject: "Password Reset OTP ",
-      text: `Your verification code is ${otp} . Enter this code to reset your password. Thanks for joining us ${user.email}.`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email:", error);
-        return res.status(500).json({
-          success: false,
-          message: "Failed to send verification email",
+    // Send email with promise handling
+    try {
+      await new Promise((resolve, reject) => {
+        transporter.sendMail({
+          from: process.env.SENDER_EMAIL,
+          to: user.email,
+          subject: "Password Reset OTP",
+          text: `Your verification code is ${otp}. Enter this code to reset your password. Thanks for joining us ${user.email}.`,
+        }, (error, info) => {
+          if (error) {
+            console.error("Email error:", error);
+            reject(error);
+          } else {
+            resolve(info);
+          }
         });
-      }
-    });
+      });
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Verification code sent successfully" });
+      return res
+        .status(200)
+        .json({ success: true, message: "Verification code sent successfully" });
+    } catch (emailError) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send verification email",
+      });
+    }
   } catch (error) {
     console.log(error);
     return res.status(500).json({ success: false, message: error.message });
@@ -274,8 +281,8 @@ export const sendResetOtp = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
-    const { email, otp, newPassword } = req.body;
-    if (!email || !otp || !newPassword) {
+    const { email, newPassword } = req.body;
+    if (!email || !newPassword) {
       return res
         .status(400)
         .json({ success: false, message: "Missing details" });
@@ -287,7 +294,43 @@ export const resetPassword = async (req, res) => {
         .status(400)
         .json({ success: false, message: "User does not exist" });
     }
-    if (user.resetOtp === " " || user.resetOtp !== otp) {
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    user.resetOtp = "";
+    user.resetOtpExpireAt = null;
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Password reset successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const verifyResetOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing details" });
+    }
+
+    const user = await userModel.findOne({ email: email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User does not exist" });
+    }
+
+    // Check if OTP matches and is not expired
+    if (user.resetOtp !== otp) {
       return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
 
@@ -297,16 +340,9 @@ export const resetPassword = async (req, res) => {
         .json({ success: false, message: "OTP has expired" });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    user.password = hashedPassword;
-    user.resetOtp = " ";
-    user.resetOtpExpireAt = 0;
-    await user.save();
-    return res.status(200).json({
-      success: true,
-      message: "Password reset successfully",
-    });
+    return res
+      .status(200)
+      .json({ success: true, message: "OTP verified successfully" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ success: false, message: error.message });
