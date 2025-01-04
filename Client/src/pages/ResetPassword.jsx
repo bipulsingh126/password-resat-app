@@ -34,14 +34,27 @@ const ResetPassword = () => {
   const onHandleSubmit = async (e) => {
     e.preventDefault()
     try {
+      if (!email) {
+        toast.error('Please enter your email')
+        return
+      }
+
       const { data } = await axios.post(
         backendUrl + '/api/auth/send-reset-otp',
         { email },
       )
-      data.success
-        ? toast.success('Reset code sent to your email')
-        : toast.error(data.message)
-      data.success && setFormStep(2) // Move to OTP step
+
+      if (data.success) {
+        toast.success('Reset code sent to your email')
+        setFormStep(2)
+        setTimer(300) // Start 5 minute timer
+        // Focus first OTP input
+        setTimeout(() => {
+          inputRefs.current[0]?.focus()
+        }, 100)
+      } else {
+        toast.error(data.message)
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to send reset code')
     }
@@ -124,6 +137,34 @@ const ResetPassword = () => {
   const handleKeyDown = (e, index) => {
     if (e.key === 'Backspace' && !e.target.value && index > 0) {
       inputRefs.current[index - 1].focus() // Move to the previous input
+    }
+  }
+
+  const handleResendOtp = async () => {
+    if (timer > 0) {
+      toast.info('Please wait before requesting a new code')
+      return
+    }
+
+    try {
+      const { data } = await axios.post(
+        backendUrl + '/api/auth/send-reset-otp',
+        { email },
+      )
+
+      if (data.success) {
+        toast.success('New code sent to your email')
+        setTimer(300) // Reset timer to 5 minutes
+        // Clear OTP inputs
+        inputRefs.current.forEach((input) => {
+          if (input) input.value = ''
+        })
+        inputRefs.current[0]?.focus()
+      } else {
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to resend code')
     }
   }
 
@@ -268,15 +309,24 @@ const ResetPassword = () => {
             <div className="flex items-center justify-between text-sm">
               <button
                 type="button"
-                className="text-gray-600 hover:text-purple-700 
+                onClick={handleResendOtp}
+                disabled={timer > 0}
+                className={`text-gray-600 hover:text-purple-700 
                           hover:underline underline-offset-4
-                          transition-all duration-300"
+                          transition-all duration-300
+                          ${timer > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                Resend Code
+                {timer > 0
+                  ? `Wait ${Math.floor(timer / 60)}:${(timer % 60)
+                      .toString()
+                      .padStart(2, '0')}`
+                  : 'Resend Code'}
               </button>
               <div className="flex items-center gap-2 text-gray-600">
                 <svg
-                  className="w-4 h-4 text-purple-600 animate-pulse"
+                  className={`w-4 h-4 text-purple-600 ${
+                    timer > 0 ? 'animate-pulse' : ''
+                  }`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -289,8 +339,11 @@ const ResetPassword = () => {
                   />
                 </svg>
                 <span>
-                  Code expires in {Math.floor(timer / 60)}:
-                  {(timer % 60).toString().padStart(2, '0')}
+                  {timer > 0
+                    ? `Code expires in ${Math.floor(timer / 60)}:${(timer % 60)
+                        .toString()
+                        .padStart(2, '0')}`
+                    : 'Code expired'}
                 </span>
               </div>
             </div>

@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 import transporter from "../config/nodemailer.js";
+import { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE } from "../config/emailTemplates.js";
 
 export const register = async (req, res) => {
   try {
@@ -148,6 +149,7 @@ export const sendVerifyOtp = async (req, res) => {
       to: user.email,
       subject: "Account Verification OTP ",
       text: `Your verification code is ${otp} . Enter this code to verify your account. Thanks for joining us ${user.email}.`,
+      html: EMAIL_VERIFY_TEMPLATE.replace("{{otp}}", otp).replace("{{email}}", user.email)
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -244,31 +246,27 @@ export const sendResetOtp = async (req, res) => {
 
     await user.save();
 
-    // Send email with promise handling
-    try {
-      await new Promise((resolve, reject) => {
-        transporter.sendMail({
-          from: process.env.SENDER_EMAIL,
-          to: user.email,
-          subject: "Password Reset OTP",
-          text: `Your verification code is ${otp}. Enter this code to reset your password. Thanks for joining us ${user.email}.`,
-        }, (error, info) => {
-          if (error) {
-            console.error("Email error:", error);
-            reject(error);
-          } else {
-            resolve(info);
-          }
-        });
-      });
+    // Use the email template
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: user.email,
+      subject: "Password Reset OTP",
+      html: PASSWORD_RESET_TEMPLATE
+        .replace("{{otp}}", otp)
+        .replace("{{email}}", user.email)
+    };
 
+    // Send email with proper error handling
+    try {
+      await transporter.sendMail(mailOptions);
       return res
         .status(200)
         .json({ success: true, message: "Verification code sent successfully" });
     } catch (emailError) {
+      console.error("Email error:", emailError);
       return res.status(500).json({
         success: false,
-        message: "Failed to send verification email",
+        message: "Failed to send verification email"
       });
     }
   } catch (error) {
